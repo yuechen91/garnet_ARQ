@@ -84,7 +84,7 @@ flitBuffer::functionalWrite(Packet *pkt)
     uint32_t num_functional_writes = 0;
 
     for (unsigned int i = 0; i < m_buffer.size(); ++i) {
-        if(m_buffer[i]->get_ack()==NULL_){
+        if(m_buffer[i]->get_ack()==NORMAL__){
 	    if (m_buffer[i]->functionalWrite(pkt)) {
             	num_functional_writes++;
        		 }

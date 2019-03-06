@@ -59,7 +59,7 @@ class flit
     RouteInfo get_route() { return m_route; }
     MsgPtr& get_msg_ptr() { return m_msg_ptr; }
     flit_type get_type() { return m_type; }
-    flit_type get_ack() {return m_ack; }
+    packet_type get_ack() {return m_ack; }
     std::pair<flit_stage, Cycles> get_stage() { return m_stage; }
     Cycles get_src_delay() { return src_delay; }
 
@@ -110,7 +110,7 @@ class flit
     int m_size;
     Cycles m_enqueue_time, m_dequeue_time, m_time;
     flit_type m_type;
-    flit_type m_ack;
+    packet_type m_ack;
     MsgPtr m_msg_ptr;
     int m_outport;
     Cycles src_delay;

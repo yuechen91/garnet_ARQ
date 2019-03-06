@@ -95,7 +95,7 @@ class NetworkInterface : public ClockedObject, public Consumer
     std::vector<flit *> ackQueue;//buffer ack flit for next cycle
     std::vector<retransmission> Retran_Buffer;//buffer retransmission pkt for next cycle
     std::vector<retransmission> ARQ_Buffer;//buffer sent message for ARQ protocol 
-    const float error_rate=0;
+    const float error_rate=0.2344;//0.2344;
 //*********************************************
     int m_deadlock_threshold;
 

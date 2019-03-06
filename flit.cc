@@ -51,31 +51,50 @@ flit::flit(int id, int  vc, int vnet, RouteInfo route, int size,
     if(type==NORMAL__){
     	if (size == 1) {
         	m_type = HEAD_TAIL_;
-		m_ack = NULL_;
+		m_ack = NORMAL__;
        		 return;
    	 }
    	 if (id == 0){
        		 m_type = HEAD_;
-		 m_ack=NULL_;
+		 m_ack=NORMAL__;
 	 }
    	 else if (id == (size - 1)){
       		  m_type = TAIL_;
-		  m_ack=NULL_;
+		  m_ack=NORMAL__;
 	 }
    	 else{
      		  m_type = BODY_;
-		  m_ack=NULL_;
+		  m_ack=NORMAL__;
+	 }
+    }
+    else if(type==RETRAN__){
+    	if (size == 1) {
+        	m_type = HEAD_TAIL_;
+		m_ack = RETRAN__;
+       		 return;
+   	 }
+   	 if (id == 0){
+       		 m_type = HEAD_;
+		 m_ack=RETRAN__;
+	 }
+   	 else if (id == (size - 1)){
+      		  m_type = TAIL_;
+		  m_ack=RETRAN__;
+	 }
+   	 else{
+     		  m_type = BODY_;
+		  m_ack=RETRAN__;
 	 }
     }
     else if (type==ACK__){
 
 	    m_type=HEAD_TAIL_;
-	    m_ack=ACK_;
+	    m_ack=ACK__;
     }
     else if (type==NACK__){
 
 	    m_type=HEAD_TAIL_;
-	    m_ack=NACK_;
+	    m_ack=NACK__;
     }
 }
 

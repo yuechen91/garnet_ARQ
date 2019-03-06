@@ -197,7 +197,6 @@ NetworkInterface::wakeup()
 	    if(ackQueue.empty() == false){//not empty
 	 	   flit * fl= ackQueue.front();
 		   int vc = calculateVC(vnet);
-//		  cout<<"before vc!=-1"<<endl; 
 	    	if( vc != -1){
 	       		fl->set_vc(vc);
 			RouteInfo route=fl->get_route();
@@ -230,7 +229,7 @@ NetworkInterface::wakeup()
 			    m_net_ptr->increment_injected_packets(vnet);
 			    for (int i=0; i < num_flits; i++){
 				    m_net_ptr->increment_injected_flits(vnet);
-				    flit *fl = new flit(i,vc,vnet,pkt.route,num_flits,pkt.flit,curCycle(),NORMAL__);
+				    flit *fl = new flit(i,vc,vnet,pkt.route,num_flits,pkt.flit,curCycle(),RETRAN__);
 				    fl->set_src_delay(curCycle() - ticksToCycles(pkt.message->getTime()));
 				    m_ni_out_vcs[vc]->insert(fl);
 			    }
@@ -283,7 +282,7 @@ NetworkInterface::wakeup()
         t_flit->set_dequeue_time(curCycle());
 
 	//Remove ack packet from the system
-	if(t_flit->get_ack()==ACK_){
+	if(t_flit->get_ack()==ACK__){
 		sendCredit(t_flit,true);
 //		cout<<"received ack packet"<<endl;
 //		cout<<"ARQ_Buffer size = "<<ARQ_Buffer.size()<<endl;
@@ -298,7 +297,7 @@ NetworkInterface::wakeup()
 		incrementStats(t_flit);
 		delete t_flit;
 	}
-	else if(t_flit->get_ack()==NACK_){
+	else if(t_flit->get_ack()==NACK__){
 		sendCredit(t_flit,true);
 //		cout<<"received ack packet"<<endl;
 //		cout<<"ARQ_Buffer size = "<<ARQ_Buffer.size()<<endl;
@@ -356,19 +355,26 @@ NetworkInterface::wakeup()
 
 			if(t_flit->get_type()==HEAD_TAIL_){
 				fl=new flit(0,vc,route.vnet,route,1,t_flit->get_msg_ptr(),curCycle()+Cycles(1),ACK__);
+				if(t_flit->get_ack()==NORMAL__){
 		                outNode_ptr[vnet]->enqueue(t_flit->get_msg_ptr(), curTime,
                 		                           cyclesToTicks(Cycles(1)));// do not block control packet
+				}
 			}
-//			else if(rand()%100000<=((1-pow(1-error_rate,t_flit->get_route().hops_traversed))*100000)){
+			else if(rand()%100000<=((1-pow(1-error_rate,t_flit->get_route().hops_traversed))*100000)){
 
-//				fl=new flit(0,vc,route.vnet,route,1,t_flit->get_msg_ptr(),curCycle()+Cycles(1),NACK__);
-//				cout<<"created NACK packet"<<endl;
-//			}
+				fl=new flit(0,vc,route.vnet,route,1,t_flit->get_msg_ptr(),curCycle()+Cycles(1),NACK__);
+				if(t_flit->get_ack()==NORMAL__){
+		                	outNode_ptr[vnet]->enqueue(t_flit->get_msg_ptr(), curTime,
+                		        	                   cyclesToTicks(Cycles(1)));
+                		}
+				cout<<"created NACK packet"<<endl;
+			}
 			else{
 				fl=new flit(0,vc,route.vnet,route,1,t_flit->get_msg_ptr(),curCycle()+Cycles(1),ACK__);
-		                outNode_ptr[vnet]->enqueue(t_flit->get_msg_ptr(), curTime,
-                		                           cyclesToTicks(Cycles(1)));// only reveive correct packet
-				
+		                if(t_flit->get_ack()==NORMAL__){
+					outNode_ptr[vnet]->enqueue(t_flit->get_msg_ptr(), curTime,
+                		                           cyclesToTicks(Cycles(1)));// reveive correct packet
+				}			
 			}
 			
 //			cout<<"generate ACK packet"<<endl;
@@ -479,18 +485,28 @@ NetworkInterface::checkStallQueue()
 			flit *fl;
 			if(stallFlit->get_type()==HEAD_TAIL_){
 				fl=new flit(0,vc,route.vnet,route,1,stallFlit->get_msg_ptr(),curCycle()+Cycles(1),ACK__);
+				
+				if(stallFlit->get_ack()==NORMAL__){
 		                outNode_ptr[vnet]->enqueue(stallFlit->get_msg_ptr(), curTime,
                 		                           cyclesToTicks(Cycles(1)));// do not block control packet
+				}
 			}
-//			else if(rand()%100000<=((1-pow(1-error_rate,stallFlit->get_route().hops_traversed))*100000)){
+			else if(rand()%100000<=((1-pow(1-error_rate,stallFlit->get_route().hops_traversed))*100000)){
 
-//				fl=new flit(0,vc,route.vnet,route,1,stallFlit->get_msg_ptr(),curCycle()+Cycles(1),NACK__);
-//				cout<<"created NACK packet"<<endl; 
-//			}
+				fl=new flit(0,vc,route.vnet,route,1,stallFlit->get_msg_ptr(),curCycle()+Cycles(1),NACK__);
+		                if(stallFlit->get_ack()==NORMAL__){
+		                	outNode_ptr[vnet]->enqueue(stallFlit->get_msg_ptr(), curTime,
+              		        	                   cyclesToTicks(Cycles(1)));
+                		}
+				cout<<"created NACK packet"<<endl; 
+			}
 			else{
 				fl=new flit(0,vc,route.vnet,route,1,stallFlit->get_msg_ptr(),curCycle()+Cycles(1),ACK__);
+				
+				if(stallFlit->get_ack()==NORMAL__){
 		                outNode_ptr[vnet]->enqueue(stallFlit->get_msg_ptr(), curTime,
                                                   cyclesToTicks(Cycles(1)));
+				}
 		               
 			}
 
